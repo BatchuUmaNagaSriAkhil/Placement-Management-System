@@ -1,65 +1,121 @@
 import './App.css';
-import Navbar from './components/Navbar';
-import Heading from './components/Heading';
-import Student from './components/StudentTable/Student';
-import Sidebar from './components/Sidebar/Sidebar';
-import Dashboard from './components/Dashboard/Dashboard';
-import Footer from './components/Footer/Footer';
-import Home from './components/pages/Home';
-import Register from './components/Registration/Registration';
-import Login from './components/pages/Login/Login';
-import {Routes,Route} from "react-router-dom";
+
+import { Routes, Route } from "react-router-dom";
+
+import { useState } from 'react';
+
 import Layout from './components/Layouts/Layout';
-import Students from './components/pages/Student/Student';
-// App.jsx The root component
-// Initially everything is displayed from jsx
-// Creating a root component
-// function App(){
-//   return(
-//     // Fragment
-//     <>
-//       <h1>Welcome To Chalapathi</h1>
-//       <p>Learn Today Lead Tomorrow</p>
-//     </>
-//   )
 
-// }
+import Home from './components/pages/Home';
 
-// Root component
-function App(){
-  let students = 250;
-  function addStudent(){
-    students++
-    console.log(students);
-  };
-  return(
-    <>
+import Register from './components/Registration/Registration';
+
+import Login from './components/pages/Login/Login';
+
+import Students from './components/pages/Student/Students';
+
+import StudentDetails from './components/StudentDetails';
+
+import Dashboard from './components/Dashboard/Dashboard';
+
+import NotFound from './components/pages/NotFound/NotFound';
+
+import CompanyRegistration from './components/pages/CompanyRegistration/CompanyRegistration';
+
+import Companies from './components/Companies/Companies';
+import EditStudent from "./components/pages/EditStudent/EditStudent";
+
+
+
+function App() {
+
+  const [students, setStudents] = useState([]);
+
+  return (
+
     <Routes>
-      
-      <Route path="/login" element={<Login/>}/>
-      <Route path='/register' element={<Register/>}/>
-      <Route element={<Layout/>}>
-      <Route path='/' element={<Home/>}/>
-      <Route path="/student" element={<Students/>}/>
 
-      <Route path='/dashboard' element={<Dashboard/>}/>
+      <Route 
+        path="/login" 
+        element={<Login />}
+      />
+
+      {/* Without Layout */}
+
+
+
+      <Route 
+        path="/register" 
+        element={<Register />}
+      />
+
+
+
+      {/* With Layout */}
+
+      <Route element={<Layout />}>
+
+
+        <Route 
+          path="/" 
+          element={<Home />}
+        />
+
+
+        <Route 
+          path="/dashboard" 
+          element={<Dashboard />}
+        />
+
+
+        <Route 
+          path="/students" 
+          element={<Students />}
+        />
+
+
+        <Route 
+          path="/student/:id" 
+          element={<StudentDetails />}
+        />
+        <Route
+          path="/students/edit/:id"
+          element={
+            <EditStudent
+              students={students}
+              setStudents={setStudents}
+            />
+          }
+        />
+
+
+        <Route 
+          path="/company-registration" 
+          element={<CompanyRegistration />}
+        />
+
+
+        <Route 
+          path="/companies" 
+          element={<Companies />}
+        />
+
+
       </Route>
+
+
+
+      {/* 404 Page */}
+
+      <Route 
+        path="*" 
+        element={<NotFound />}
+      />
+
+
     </Routes>
-      
 
- 
-  
-
-    
-    <div className='main'>
-    
-  
-
-      
-    </div>
-    
-   
-    </>
   );
-};
+
+}
 export default App;
