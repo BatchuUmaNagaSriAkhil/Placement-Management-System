@@ -1,7 +1,14 @@
-import { NavLink } from "react-router-dom";
+import { NavLink , useNavigate} from "react-router-dom";
 import "./Sidebar.css";
+import Login from "../pages/Login/Login";
 
 function Sidebar() {
+  const navigate = useNavigate();
+  
+  function Logout() {
+    localStorage.removeItem("isLoggedIn")
+    navigate("/Login");
+  }
   return (
     <ul className="sidebar">
       <NavLink
@@ -19,18 +26,25 @@ function Sidebar() {
       </NavLink>
 
       <NavLink
-        to="/Student"
+        to="/students"
         className={({ isActive }) => (isActive ? "active" : "")}
       >
         <li>Students</li>
       </NavLink>
 
       <NavLink
-        to="/Companies"
+        to="/companies"
         className={({ isActive }) => (isActive ? "active" : "")}
-      >
-        <li>Companies</li>
+        >
+      <li>Companies</li>
       </NavLink>
+        
+        <NavLink
+          to="/company-registration"
+          className={({ isActive }) => (isActive ? "active" : "")}
+        >
+          <li>Company Registration</li>
+        </NavLink>
 
       <NavLink
         to="/Placements"
@@ -53,12 +67,10 @@ function Sidebar() {
         <li>Settings</li>
       </NavLink>
 
-      <NavLink
-        to="/Logout"
-        className={({ isActive }) => (isActive ? "active" : "")}
-      >
+      <button onClick={Logout}>
         <li>Logout</li>
-      </NavLink>
+        </button>
+      
     </ul>
   );
 }
