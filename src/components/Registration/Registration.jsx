@@ -1,27 +1,25 @@
 import { useState } from "react";
 import "./Registration.css";
-import Student from "../StudentTable/Student";
-import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 
 function Register() {
+  const navigate = useNavigate();
+
   const [studentName, setStudentName] = useState("");
   const [password, setPassword] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [branch, setBranch] = useState("");
   const [cgpa, setCGPA] = useState("");
-  const navigate = useNavigate();
 
-  // Array to store students
-  const [students, setStudents] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
   const passwordPattern =
     /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
 
-  function registerStudent(e) {
+  async function registerStudent(e) {
     e.preventDefault();
 
     if (studentName.trim() === "") {
@@ -30,124 +28,158 @@ function Register() {
     }
 
     if (!emailPattern.test(email)) {
-      alert("Please enter a valid email.");
+      alert("Enter a valid email");
       return;
     }
 
     if (phone.length !== 10 || isNaN(phone)) {
-      alert("Enter a valid 10-digit phone number.");
+      alert("Enter a valid 10-digit phone number");
       return;
     }
 
     if (branch.trim() === "") {
-      alert("Enter your branch.");
+      alert("Branch is required");
       return;
     }
 
-    if (cgpa === "") {
-      alert("Please enter your CGPA.");
-      return;
-    }
-
-    if (Number(cgpa) <= 0 || Number(cgpa) > 10) {
-      alert("CGPA must be between 0.1 and 10.");
+    if (cgpa === "" || Number(cgpa) < 0 || Number(cgpa) > 10) {
+      alert("CGPA must be between 0 and 10");
       return;
     }
 
     if (!passwordPattern.test(password)) {
       alert(
-        "Password should contain at least 8 characters, one uppercase letter, one lowercase letter, one number and one special character."
+        "Password must contain at least 8 characters with uppercase, lowercase, number and special character."
       );
       return;
     }
 
-    const student = {
-      studentName,
-      email,
-      phone,
-      branch,
-      cgpa,
-    };
+    setLoading(true);
 
-    // Add student to array
-    setStudents([...students, student]);
+    try {
+      const response = await fetch("http://localhost:8000/students", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          studentName,
+          email,
+          phone,
+          branch,
+          cgpa,
+        }),
+      });
 
-    alert("Registration Successful!");
+      const data = await response.json();
 
-    // Clear form
-    setStudentName("");
-    setPassword("");
-    setEmail("");
-    setPhone("");
-    setBranch("");
-    setCGPA("");
+      if (!response.ok) {
+        alert(data.message || "Registration Failed");
+        return;
+      }
+
+      alert("Student Registered Successfully!");
+
+      setStudentName("");
+      setPassword("");
+      setEmail("");
+      setPhone("");
+      setBranch("");
+      setCGPA("");
+
+      navigate("/students");
+    } catch (error) {
+  console.error("Full Error:", error);
+  console.error("Message:", error.message);
+  alert(error.message);
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
     <div className="register-container">
       <h1>Student Registration</h1>
 
-      <input
-        type="text"
-        placeholder="Enter Name"
-        value={studentName}
-        onChange={(e) => setStudentName(e.target.value)}
-      />
-      <br />
+      <form onSubmit={registerStudent}>
+        <input
+          type="text"
+          placeholder="Enter Name"
+          value={studentName}
+          onChange={(e) => setStudentName(e.target.value)}
+          disabled={loading}
+        />
 
-      <input
-        type="password"
-        placeholder="Enter Password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-      />
-      <br />
+        <br />
 
-      <input
-        type="email"
-        placeholder="Enter Email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-      />
-      <br />
+        <input
+          type="password"
+          placeholder="Enter Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          disabled={loading}
+        />
 
-      <input
-        type="text"
-        placeholder="Enter Phone Number"
-        value={phone}
-        onChange={(e) => setPhone(e.target.value)}
-      />
-      <br />
+        <br />
 
-      <input
-        type="text"
-        placeholder="Enter Branch"
-        value={branch}
-        onChange={(e) => setBranch(e.target.value)}
-      />
-      <br />
+        <input
+          type="email"
+          placeholder="Enter Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          disabled={loading}
+        />
 
-      <input
-        type="number"
-        placeholder="Enter CGPA"
-        value={cgpa}
-        onChange={(e) => setCGPA(e.target.value)}
-      />
-      <br />
+        <br />
 
-      <button onClick={registerStudent}>Register</button>
+        <input
+          type="text"
+          placeholder="Enter Phone Number"
+          value={phone}
+          onChange={(e) => setPhone(e.target.value)}
+          disabled={loading}
+        />
 
-      {/* Student Table Component */}
-      <Student students={students} /><br />
+        <br />
 
-   
-      <h4>Already Have An Account?</h4>
+        <input
+          type="text"
+          placeholder="Enter Branch"
+          value={branch}
+          onChange={(e) => setBranch(e.target.value)}
+          disabled={loading}
+        />
 
-<button onClick={() => navigate("/Login")}>
-  Login
-</button>
+        <br />
 
+        <input
+          type="number"
+          placeholder="Enter CGPA"
+          value={cgpa}
+          onChange={(e) => setCGPA(e.target.value)}
+          disabled={loading}
+        />
 
+        <br />
+        <br />
+
+        <button type="submit" disabled={loading}>
+          {loading ? "Registering..." : "Register"}
+        </button>
+
+        <br />
+        <br />
+
+        <h4>Already Have An Account?</h4>
+
+        <button
+          type="button"
+          onClick={() => navigate("/login")}
+          disabled={loading}
+        >
+          Login
+        </button>
+      </form>
     </div>
   );
 }
