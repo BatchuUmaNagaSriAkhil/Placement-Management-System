@@ -1,14 +1,13 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
-import Dashboard from "../../Dashboard/Dashboard";
+import { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import "./Login.css";
 
 function Login() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const navigate = useNavigate();
 
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -17,15 +16,28 @@ function Login() {
   const passwordPattern =
     /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
 
-  function handleLogin() {
-    if (isLoggedIn) {
-      setIsLoggedIn(false);
-      setEmail("");
-      setPassword("");
-      setShowPassword(false);
-      return;
-    }
+  // Function to check login status
+  function loginStatus() {
+    const loggedIn = localStorage.getItem("isLoggedIn");
 
+    if (loggedIn === "true") {
+      setIsLoggedIn(true);
+      navigate("/Dashboard");
+    } else {
+      setIsLoggedIn(false);
+    }
+  }
+
+  // Check login status when component loads
+useEffect(() => {
+  const status = loginStatus();
+
+  if (!status) {
+    navigate("/login");
+  }
+}, []);
+
+  function handleLogin() {
     setLoading(true);
 
     setTimeout(() => {
@@ -51,9 +63,20 @@ function Login() {
 
       alert("Login Successful!");
 
-      setIsLoggedIn(true);
+      localStorage.setItem("isLoggedIn", "true");
       setLoading(false);
+
+      loginStatus();
     }, 2000);
+  }
+
+  function handleLogout() {
+    localStorage.removeItem("isLoggedIn");
+    setIsLoggedIn(false);
+    setEmail("");
+    setPassword("");
+
+    navigate("/");
   }
 
   return (
@@ -102,9 +125,7 @@ function Login() {
         <>
           <h2>Welcome Back!</h2>
 
-          <button onClick={handleLogin}>Logout</button>
-
-          <Dashboard />
+          <button onClick={handleLogout}>Logout</button>
         </>
       )}
     </div>
